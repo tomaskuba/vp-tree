@@ -1,4 +1,0 @@
-extensions:
-    - PhpSpec\NyanFormattersExtension\Extension
-
-formatter.name: nyan.dino

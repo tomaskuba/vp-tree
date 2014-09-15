@@ -4,17 +4,15 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "Tomas Kuba",
-            "email": "tomas.kuba.cz@gmail.com"
+            "name": "Tomáš Kuba"
         }
     ],
     "require": {
     },
     "require-dev": {
-        "phpspec/phpspec": "~2.0",
-        "phpspec/nyan-formatters": "~1.0"
+        "phpunit/phpunit": "4.2.*"
     },
     "autoload": {
-        "psr-4": {"TomasKuba\\VPTree\\": "src/" }
+        "psr-4": {"": "src/" }
     }
 }
