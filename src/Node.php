@@ -19,6 +19,8 @@ class Node
     private $innerChild;
     /** @var  Node */
     private $outerChild;
+    /** @var  int */
+    private $lastSearchCycles;
 
     function __construct(array $elements, $level = 0)
     {
@@ -35,6 +37,15 @@ class Node
     public function getElements()
     {
         return $this->elements;
+    }
+
+    public function getElement(){
+        if ($this->getElementsCount() > 0){
+            return $this->elements[0];
+        } else {
+            return NULL;
+        }
+
     }
 
     public function getVantagePoint()
@@ -148,5 +159,65 @@ class Node
     private function isInnerElement(ElementInterface $element)
     {
         return ($element->distanceTo($this->vp) <= $this->mu);
+    }
+
+    public function findNearestOne(ElementInterface $query){
+        return $this->findNearest($query, 1)[0];
+    }
+
+    public function findNearest(ElementInterface $query, $count)
+    {
+        $this->lastSearchCycles = 0;
+        $elementsPriorityQueue = new \SplPriorityQueue();
+        $queueToSearch = new \SplPriorityQueue();
+
+        $queueToSearch->insert($this, $this->getLevel());
+
+        while ($queueToSearch->count() > 0){
+            $this->lastSearchCycles++;
+            /** @var Node $node */
+            $node = $queueToSearch->extract();
+            $distance = $query->distanceTo($node->getVantagePoint());
+
+            $priority = (1 / (1 + $distance)) / ($node->getElementsCount());
+            $elementsPriorityQueue->insert($node, $priority);
+
+            if ($node->hasInnerChild()) {
+                $queueToSearch->insert($node->getInnerChild(), $node->getLevel());
+            }
+            if ($node->hasOuterChild()) {
+                $queueToSearch->insert($node->getOuterChild(), $node->getLevel());
+            }
+        }
+
+        if ($count == 1) {
+            return array($elementsPriorityQueue->extract()->getElement());
+        }
+
+        $elementsArray = array();
+        while ($count > 0 && $elementsPriorityQueue->count() > 0) {
+            $node = $elementsPriorityQueue->extract();
+            if ($node->isLeaf()){
+                $elementsArray[] = $node->getElement();
+                $count--;
+            }
+        }
+        return $elementsArray;
+
+    }
+
+    public function hasInnerChild()
+    {
+        return !is_null($this->innerChild);
+    }
+
+    public function hasOuterChild()
+    {
+        return !is_null($this->outerChild);
+    }
+
+    public function getLastSearchCycles()
+    {
+        return $this->lastSearchCycles;
     }
 }
