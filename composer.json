@@ -10,6 +10,7 @@
     "require": {
     },
     "require-dev": {
+        "php": ">=5.3.23",
         "phpunit/phpunit": "4.2.*"
     },
     "autoload": {
