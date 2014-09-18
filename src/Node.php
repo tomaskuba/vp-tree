@@ -162,7 +162,8 @@ class Node
     }
 
     public function findNearestOne(ElementInterface $query){
-        return $this->findNearest($query, 1)[0];
+        $nearest = $this->findNearest($query, 1);
+        return $nearest[0];
     }
 
     public function findNearest(ElementInterface $query, $count)
