@@ -44,24 +44,6 @@ class Element implements ElementInterface {
     }
 
     /**
-     * @param ElementInterface $element
-     * @return float
-     */
-    public function distanceTo(ElementInterface $element)
-    {
-        if ($this->getDimensions() != $element->getDimensions()){
-            throw new \InvalidArgumentException('Unequal elements\' dimensions');
-        }
-
-        $sum = 0;
-        foreach ($element->getCoordinates() as $d=>$v){
-            $diff = abs($element->getCoordinate($d) - $this->getCoordinate($d));
-            $sum += pow($diff, 2);
-        }
-        return sqrt($sum);
-    }
-
-    /**
      * @param mixed $dimension
      * @return mixed
      */

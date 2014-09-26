@@ -126,7 +126,7 @@ class Node
         $distances = array();
         /** @var ElementInterface $element */
         foreach ($this->elements as $element) {
-            $distances[] = $element->distanceTo($this->vp);
+            $distances[] = $this->distance($element,$this->vp);
         }
         $this->mu = $this->findMedian($distances);
     }
@@ -153,12 +153,33 @@ class Node
     }
 
     /**
+     * @param ElementInterface $a
+     * @return float
+     */
+    public static function distance(ElementInterface $a, ElementInterface $b)
+    {
+        $coordsA = $a->getCoordinates();
+        $coordsB = $b->getCoordinates();
+
+        if (array_keys($coordsA) != array_keys($coordsB)) {
+            throw new \InvalidArgumentException('Unequal elements\' dimensions');
+        }
+
+        $sum = 0;
+        foreach ($coordsA as $d => $v){
+            $diff = abs($coordsB[$d] - $coordsA[$d]);
+            $sum += pow($diff, 2);
+        }
+        return sqrt($sum);
+    }
+
+    /**
      * @param ElementInterface $element
      * @return bool
      */
     private function isInnerElement(ElementInterface $element)
     {
-        return ($element->distanceTo($this->vp) <= $this->mu);
+        return ($this->distance($element, $this->vp) <= $this->mu);
     }
 
     public function findNearestOne(ElementInterface $query){
@@ -178,7 +199,7 @@ class Node
             $this->lastSearchCycles++;
             /** @var Node $node */
             $node = $queueToSearch->extract();
-            $distance = $query->distanceTo($node->getVantagePoint());
+            $distance = $this->distance($query, $node->getVantagePoint());
 
             $priority = (1 / (1 + $distance)) / ($node->getElementsCount());
             $elementsPriorityQueue->insert($node, $priority);

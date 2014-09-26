@@ -24,7 +24,7 @@ class NodeTest extends \PHPUnit_Framework_TestCase {
         $nearestElements = array();
 
         foreach ($dataSet as $element) {
-            $distance = $query->distanceTo($element);
+            $distance = $this->node->distance($query, $element);
             if ($distance < $smallestDistance) {
                 $smallestDistance = $distance;
                 $nearestElement = $element;
@@ -84,6 +84,44 @@ class NodeTest extends \PHPUnit_Framework_TestCase {
         $this->assertNotEmpty($this->node->getMu());
         $this->assertNotEquals(0, $this->node->getMu());
         // Are there any other possible tests?
+    }
+
+    public function testCalculateDistance()
+    {
+        $el1 = new Element(array(1, 2, 3, 4, 5));
+        $el2 = new Element(array(9, 8, 7, 6, 5));
+
+        $this->assertEquals(sqrt(120), $this->node->distance($el1, $el2));
+        $this->assertEquals($this->node->distance($el1, $el2), $this->node->distance($el2, $el1));
+        $this->assertNotEquals(0, $this->node->distance($el1, $el2));
+    }
+
+    public function testCalculateDistanceWithNamedDimensions()
+    {
+        $el1 = new Element(array('x' => 3, 'y' => 2, 'z' => 1));
+        $el2 = new Element(array('x' => 2, 'y' => 1, 'z' => 0));
+
+        $this->assertEquals($this->node->distance($el1, $el2), $this->node->distance($el2, $el1));
+        $this->assertNotEquals(0, $this->node->distance($el1, $el2));
+    }
+
+    /** @expectedException \InvalidArgumentException */
+    public function testItThrowsOnDistanceCalculationWhenDimensionsUnequal()
+    {
+        $el1 = new Element(array(1, 2, 3, 4, 5));
+        $el2 = new Element(array(9, 8, 7, 5));
+
+        $this->assertEquals($this->node->distance($el1, $el2), $this->node->distance($el2, $el1));
+    }
+
+
+    /** @expectedException \InvalidArgumentException */
+    public function testItThrowsOnDistanceCalculationWhenNamedDimensionsUnequal()
+    {
+        $el1 = new Element(array('z' => 3, 'y' => 2, 'x' => 1));
+        $el2 = new Element(array('x' => 2, 'y' => 1, 'z' => 0));
+
+        $this->assertEquals($this->node->distance($el1, $el2), $this->node->distance($el2, $el1));
     }
 
     public function testItSetsAndReturnChildNodesFromElements()
