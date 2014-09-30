@@ -9,9 +9,15 @@ use TomasKuba\VPTree\ElementInterface;
 use TomasKuba\VPTree\Node;
 
 class NodeTest extends \PHPUnit_Framework_TestCase {
+    private $a;
+    private $b;
+    private $c;
+    private $d;
+    private $e;
 
     /** @var  array */
     private $els;
+
     /** @var  Node */
     private $node;
 
@@ -24,7 +30,7 @@ class NodeTest extends \PHPUnit_Framework_TestCase {
         $nearestElements = array();
 
         foreach ($dataSet as $element) {
-            $distance = $query->distanceTo($element);
+            $distance = $this->node->distance($query, $element);
             if ($distance < $smallestDistance) {
                 $smallestDistance = $distance;
                 $nearestElement = $element;
@@ -47,14 +53,34 @@ class NodeTest extends \PHPUnit_Framework_TestCase {
         ));
     }
 
+    private function mockElement(array $coords)
+    {
+        return new Element($coords);
+    }
+
+    private function mockElements(){
+        $arrayOfCoords = func_get_args();
+        $elements = array();
+        foreach ($arrayOfCoords as $coords) {
+            $elements[] = $this->mockElement($coords);
+        }
+        return $elements;
+    }
+
     protected function setup()
     {
-        $this->els = array(
-            new Element(array(1, 2, 3)),
-            new Element(array(4, 5, 6)),
-            new Element(array(7, 8, 9)),
+        $this->els = $this->mockElements(
+            array(1, 2, 3),
+            array(4, 5, 6),
+            array(7, 8, 9)
         );
         $this->node = new Node($this->els);
+
+        $this->a = $this->mockElement(array(1, 1));
+        $this->b = $this->mockElement(array(2, 1)); // |AB| = 1
+        $this->c = $this->mockElement(array(2, 3)); // |BC| = 2
+        $this->d = $this->mockElement(array(5, 3)); // |CD| = 3
+        $this->e = $this->mockElement(array(5, 7)); // |DE| = 4
     }
 
     public function testItIsInstantiableObject()
@@ -83,7 +109,44 @@ class NodeTest extends \PHPUnit_Framework_TestCase {
     {
         $this->assertNotEmpty($this->node->getMu());
         $this->assertNotEquals(0, $this->node->getMu());
-        // Are there any other possible tests?
+    }
+
+    public function testCalculateDistance()
+    {
+        $el1 = $this->mockElement(array(1, 2, 3, 4, 5));
+        $el2 = $this->mockElement(array(9, 8, 7, 6, 5));
+
+        $this->assertEquals(sqrt(120), $this->node->distance($el1, $el2));
+        $this->assertEquals($this->node->distance($el1, $el2), $this->node->distance($el2, $el1));
+        $this->assertNotEquals(0, $this->node->distance($el1, $el2));
+    }
+
+    public function testCalculateDistanceWithNamedDimensions()
+    {
+        $el1 = $this->mockElement(array('x' => 3, 'y' => 2, 'z' => 1));
+        $el2 = $this->mockElement(array('x' => 2, 'y' => 1, 'z' => 0));
+
+        $this->assertEquals($this->node->distance($el1, $el2), $this->node->distance($el2, $el1));
+        $this->assertNotEquals(0, $this->node->distance($el1, $el2));
+    }
+
+    /** @expectedException \InvalidArgumentException */
+    public function testItThrowsOnDistanceCalculationWhenDimensionsUnequal()
+    {
+        $el1 = $this->mockElement(array(1, 2, 3, 4, 5));
+        $el2 = $this->mockElement(array(9, 8, 7, 5));
+
+        $this->assertEquals($this->node->distance($el1, $el2), $this->node->distance($el2, $el1));
+    }
+
+
+    /** @expectedException \InvalidArgumentException */
+    public function testItThrowsOnDistanceCalculationWhenNamedDimensionsUnequal()
+    {
+        $el1 = $this->mockElement(array('z' => 3, 'y' => 2, 'x' => 1));
+        $el2 = $this->mockElement(array('x' => 2, 'y' => 1, 'z' => 0));
+
+        $this->assertEquals($this->node->distance($el1, $el2), $this->node->distance($el2, $el1));
     }
 
     public function testItSetsAndReturnChildNodesFromElements()
@@ -120,39 +183,22 @@ class NodeTest extends \PHPUnit_Framework_TestCase {
 
     public function testFindOneNearestElement()
     {
-        $A = new Element(array(1,1));
-        $B = new Element(array(2,1)); // |AB| = 1
-        $C = new Element(array(2,3)); // |BC| = 2
-        $D = new Element(array(5,3)); // |CD| = 3
-        $E = new Element(array(5,7)); // |DE| = 4
+        $set = array($this->a, $this->b, $this->d, $this->e);
+        $VPTree = new Node($set);
 
-        $set = array($A, $B, $D, $E);
-        $VPTtree = new Node($set);
-        $nearestTo_C_viaBF = $this->findNearestAttributesBruteForce($C, $set);
-        $this->assertEquals($B, $nearestTo_C_viaBF['element']);
-        $this->assertEquals($B, $VPTtree->findNearestOne($C));
-        $this->assertEquals(2, $nearestTo_C_viaBF['distance']);
-        $this->assertEquals(4, $nearestTo_C_viaBF['cycles']);
+        $BFNearestEls = $this->findNearestAttributesBruteForce($this->c, $set);
+        $VPNearest = $VPTree->findNearestOne($this->c);
 
-        $set = array($C, $B, $D, $E);
-        $VPTtree = new Node($set);
-        $nearestTo_A_viaBF = $this->findNearestAttributesBruteForce($A, $set);
-        $this->assertEquals($B, $nearestTo_A_viaBF['element']);
-        $this->assertEquals($B, $VPTtree->findNearestOne($A));
-        $this->assertEquals(1, $nearestTo_A_viaBF['distance']);
-        $this->assertEquals(4, $nearestTo_A_viaBF['cycles']);
+        $this->assertEquals($this->b, $BFNearestEls['element']);
+        $this->assertEquals($this->b, $VPNearest);
+        $this->assertEquals(2, $BFNearestEls['distance']);
+        $this->assertEquals(4, $BFNearestEls['cycles']);
     }
 
     public function testFindSeveralNearestElements()
     {
-        $A = new Element(array(1,1));
-        $B = new Element(array(2,1)); // |AB| = 1
-        $C = new Element(array(2,3)); // |BC| = 2
-        $D = new Element(array(5,3)); // |CD| = 3
-        $E = new Element(array(5,7)); // |DE| = 4
-
-        $set = array($A, $B, $D, $C);
-        $query = $E;
+        $set = array($this->a, $this->b, $this->d, $this->c);
+        $query = $this->e;
         $VPTree = new Node($set);
         $count = 30;
 
@@ -163,6 +209,7 @@ class NodeTest extends \PHPUnit_Framework_TestCase {
             $this->assertContains($BFElement, $VPNearestEls);
         }
     }
+
 
 }
  

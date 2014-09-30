@@ -4,21 +4,50 @@
 namespace TomasKuba\VPTree;
 
 
-class Element implements ElementInterface {
+class Element implements ElementInterface
+{
 
-    /**
-     * @var array
-     */
-    private $coordinates = array();
+    /** @var array */
+    protected $coordinates;
+
+    /** @var array  */
+    protected $payload;
 
     /**
      * @param array $coordinates
      */
-    function __construct(array $coordinates)
+    function __construct(array $coordinates  = array(), array $payload  = array())
     {
         $this->coordinates = $coordinates;
+        $this->payload = $payload;
     }
 
+    /**
+     * @return array
+     */
+    public function getPayload()
+    {
+        return $this->payload;
+    }
+
+    /**
+     * @param array $payload
+     * @return \TomasKuba\VPTree\Element $this Chainable
+     */
+    public function setPayload(array $payload)
+    {
+        $this->payload = $payload;
+        return $this;
+    }
+
+    /**
+     * @param array $item
+     * @return \TomasKuba\VPTree\Element $this Chainable
+     */
+    public function addPayload($item){
+        $this->payload[] = $item;
+        return $this;
+    }
     /**
      * @return array
      */
@@ -28,47 +57,13 @@ class Element implements ElementInterface {
     }
 
     /**
-     * @return mixed
+     * @param array $coordinates
+     * @return \TomasKuba\VPTree\Element $this Chainable
      */
-    public function getDimensions()
+    public function setCoordinates($coordinates)
     {
-        return array_keys($this->coordinates);
+        $this->coordinates = $coordinates;
+        return $this;
     }
-
-    /**
-     * @return int
-     */
-    public function getDimensionsCount()
-    {
-        return count($this->coordinates);
-    }
-
-    /**
-     * @param ElementInterface $element
-     * @return float
-     */
-    public function distanceTo(ElementInterface $element)
-    {
-        if ($this->getDimensions() != $element->getDimensions()){
-            throw new \InvalidArgumentException('Unequal elements\' dimensions');
-        }
-
-        $sum = 0;
-        foreach ($element->getCoordinates() as $d=>$v){
-            $diff = abs($element->getCoordinate($d) - $this->getCoordinate($d));
-            $sum += pow($diff, 2);
-        }
-        return sqrt($sum);
-    }
-
-    /**
-     * @param mixed $dimension
-     * @return mixed
-     */
-    public function getCoordinate($dimension)
-    {
-        return $this->coordinates{$dimension};
-    }
-
 
 }
