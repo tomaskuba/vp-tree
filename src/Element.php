@@ -8,10 +8,10 @@ class Element implements ElementInterface
 {
 
     /** @var array */
-    private $coordinates;
+    protected $coordinates;
 
     /** @var array  */
-    private $payload;
+    protected $payload;
 
     /**
      * @param array $coordinates
