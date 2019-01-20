@@ -99,9 +99,9 @@ class NodeTest extends TestCase {
 
     public function testItFindsMedianValueInUnsortedSet()
     {
-        $this->assertEquals(7, $this->node->findMedian([3,5,9,7,22]));
-        $this->assertEquals(8, $this->node->findMedian([3,5,9,7,22,745]));
-        $this->assertEquals(17.5, $this->node->findMedian([5,15,20,25]));
+        $this->assertEquals(7, $this->node->findMedian([3, 5, 9, 7, 22]));
+        $this->assertEquals(8, $this->node->findMedian([3, 5, 9, 7, 22, 745]));
+        $this->assertEquals(17.5, $this->node->findMedian([5, 15, 20, 25]));
     }
 
     public function testItCalculatesAndReturnAnyMuValue()
