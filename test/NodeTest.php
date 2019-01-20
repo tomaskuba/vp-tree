@@ -1,14 +1,13 @@
 <?php
 
-
 namespace TomasKuba\VPTree\Test;
 
-
+use PHPUnit\Framework\TestCase;
 use TomasKuba\VPTree\Element;
 use TomasKuba\VPTree\ElementInterface;
 use TomasKuba\VPTree\Node;
 
-class NodeTest extends \PHPUnit_Framework_TestCase {
+class NodeTest extends TestCase {
     private $a;
     private $b;
     private $c;
@@ -27,7 +26,7 @@ class NodeTest extends \PHPUnit_Framework_TestCase {
         $nearestElement = NULL;
         $cycles = 0;
         $nearestElsQueue = new \SplPriorityQueue;
-        $nearestElements = array();
+        $nearestElements = [];
 
         foreach ($dataSet as $element) {
             $distance = $this->node->distance($query, $element);
@@ -45,12 +44,12 @@ class NodeTest extends \PHPUnit_Framework_TestCase {
             $count--;
         }
 
-        return new \ArrayObject(array(
+        return new \ArrayObject([
             'distance' => $smallestDistance,
             'element' => $nearestElement,
             'elements' => $nearestElements,
             'cycles' => $cycles
-        ));
+            ]);
     }
 
     private function mockElement(array $coords)
@@ -60,7 +59,7 @@ class NodeTest extends \PHPUnit_Framework_TestCase {
 
     private function mockElements(){
         $arrayOfCoords = func_get_args();
-        $elements = array();
+        $elements = [];
         foreach ($arrayOfCoords as $coords) {
             $elements[] = $this->mockElement($coords);
         }
@@ -70,17 +69,17 @@ class NodeTest extends \PHPUnit_Framework_TestCase {
     protected function setup()
     {
         $this->els = $this->mockElements(
-            array(1, 2, 3),
-            array(4, 5, 6),
-            array(7, 8, 9)
+            [1, 2, 3],
+            [4, 5, 6],
+            [7, 8, 9]
         );
         $this->node = new Node($this->els);
 
-        $this->a = $this->mockElement(array(1, 1));
-        $this->b = $this->mockElement(array(2, 1)); // |AB| = 1
-        $this->c = $this->mockElement(array(2, 3)); // |BC| = 2
-        $this->d = $this->mockElement(array(5, 3)); // |CD| = 3
-        $this->e = $this->mockElement(array(5, 7)); // |DE| = 4
+        $this->a = $this->mockElement([1, 1]);
+        $this->b = $this->mockElement([2, 1]); // |AB| = 1
+        $this->c = $this->mockElement([2, 3]); // |BC| = 2
+        $this->d = $this->mockElement([5, 3]); // |CD| = 3
+        $this->e = $this->mockElement([5, 7]); // |DE| = 4
     }
 
     public function testItIsInstantiableObject()
@@ -100,9 +99,9 @@ class NodeTest extends \PHPUnit_Framework_TestCase {
 
     public function testItFindsMedianValueInUnsortedSet()
     {
-        $this->assertEquals(7, $this->node->findMedian(array(3,5,9,7,22)));
-        $this->assertEquals(8, $this->node->findMedian(array(3,5,9,7,22,745)));
-        $this->assertEquals(17.5, $this->node->findMedian(array(5,15,20,25)));
+        $this->assertEquals(7, $this->node->findMedian([3,5,9,7,22]));
+        $this->assertEquals(8, $this->node->findMedian([3,5,9,7,22,745]));
+        $this->assertEquals(17.5, $this->node->findMedian([5,15,20,25]));
     }
 
     public function testItCalculatesAndReturnAnyMuValue()
@@ -113,8 +112,8 @@ class NodeTest extends \PHPUnit_Framework_TestCase {
 
     public function testCalculateDistance()
     {
-        $el1 = $this->mockElement(array(1, 2, 3, 4, 5));
-        $el2 = $this->mockElement(array(9, 8, 7, 6, 5));
+        $el1 = $this->mockElement([1, 2, 3, 4, 5]);
+        $el2 = $this->mockElement([9, 8, 7, 6, 5]);
 
         $this->assertEquals(sqrt(120), $this->node->distance($el1, $el2));
         $this->assertEquals($this->node->distance($el1, $el2), $this->node->distance($el2, $el1));
@@ -123,8 +122,8 @@ class NodeTest extends \PHPUnit_Framework_TestCase {
 
     public function testCalculateDistanceWithNamedDimensions()
     {
-        $el1 = $this->mockElement(array('x' => 3, 'y' => 2, 'z' => 1));
-        $el2 = $this->mockElement(array('x' => 2, 'y' => 1, 'z' => 0));
+        $el1 = $this->mockElement(['x' => 3, 'y' => 2, 'z' => 1]);
+        $el2 = $this->mockElement(['x' => 2, 'y' => 1, 'z' => 0]);
 
         $this->assertEquals($this->node->distance($el1, $el2), $this->node->distance($el2, $el1));
         $this->assertNotEquals(0, $this->node->distance($el1, $el2));
@@ -133,8 +132,8 @@ class NodeTest extends \PHPUnit_Framework_TestCase {
     /** @expectedException \InvalidArgumentException */
     public function testItThrowsOnDistanceCalculationWhenDimensionsUnequal()
     {
-        $el1 = $this->mockElement(array(1, 2, 3, 4, 5));
-        $el2 = $this->mockElement(array(9, 8, 7, 5));
+        $el1 = $this->mockElement([1, 2, 3, 4, 5]);
+        $el2 = $this->mockElement([9, 8, 7, 5]);
 
         $this->assertEquals($this->node->distance($el1, $el2), $this->node->distance($el2, $el1));
     }
@@ -143,8 +142,8 @@ class NodeTest extends \PHPUnit_Framework_TestCase {
     /** @expectedException \InvalidArgumentException */
     public function testItThrowsOnDistanceCalculationWhenNamedDimensionsUnequal()
     {
-        $el1 = $this->mockElement(array('z' => 3, 'y' => 2, 'x' => 1));
-        $el2 = $this->mockElement(array('x' => 2, 'y' => 1, 'z' => 0));
+        $el1 = $this->mockElement(['z' => 3, 'y' => 2, 'x' => 1]);
+        $el2 = $this->mockElement(['x' => 2, 'y' => 1, 'z' => 0]);
 
         $this->assertEquals($this->node->distance($el1, $el2), $this->node->distance($el2, $el1));
     }
@@ -183,7 +182,7 @@ class NodeTest extends \PHPUnit_Framework_TestCase {
 
     public function testFindOneNearestElement()
     {
-        $set = array($this->a, $this->b, $this->d, $this->e);
+        $set = [$this->a, $this->b, $this->d, $this->e];
         $VPTree = new Node($set);
 
         $BFNearestEls = $this->findNearestAttributesBruteForce($this->c, $set);
@@ -197,7 +196,7 @@ class NodeTest extends \PHPUnit_Framework_TestCase {
 
     public function testFindSeveralNearestElements()
     {
-        $set = array($this->a, $this->b, $this->d, $this->c);
+        $set = [$this->a, $this->b, $this->d, $this->c];
         $query = $this->e;
         $VPTree = new Node($set);
         $count = 30;

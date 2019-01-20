@@ -16,7 +16,7 @@ class Element implements ElementInterface
     /**
      * @param array $coordinates
      */
-    function __construct(array $coordinates  = array(), array $payload  = array())
+    function __construct(array $coordinates  = [], array $payload  = [])
     {
         $this->coordinates = $coordinates;
         $this->payload = $payload;

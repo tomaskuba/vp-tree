@@ -10,8 +10,8 @@
     "require": {
     },
     "require-dev": {
-        "php": ">=5.3.23",
-        "phpunit/phpunit": "4.2.*"
+        "php": "~7.3",
+        "phpunit/phpunit": "^7"
     },
     "autoload": {
         "psr-4": {"TomasKuba\\VPTree\\": "src/" }

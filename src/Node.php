@@ -11,7 +11,7 @@ class Node
     private $level;
 
     /** @var  array */
-    private $elements = array();
+    private $elements = [];
 
     /** @var  ElementInterface */
     private $vp;
@@ -54,7 +54,7 @@ class Node
 
     private function calculateMu()
     {
-        $distances = array();
+        $distances = [];
 
         /** @var ElementInterface $element */
         foreach ($this->elements as $element) {
@@ -106,8 +106,8 @@ class Node
 
     private function constructChildNodes()
     {
-        $inner = array();
-        $outer = array();
+        $inner = [];
+        $outer = [];
 
         /** @var ElementInterface $element */
         foreach ($this->elements as $element) {
@@ -175,10 +175,10 @@ class Node
     private function extractNearestByCount(\SplPriorityQueue $elementsQueue, $count)
     {
         if ($count == 1) {
-            return array($elementsQueue->extract()->getElement());
+            return [$elementsQueue->extract()->getElement()];
         }
 
-        $elementsArray = array();
+        $elementsArray = [];
         while ($count > 0 && $elementsQueue->count() > 0) {
             $node = $elementsQueue->extract();
             if ($node->isLeaf()) {
